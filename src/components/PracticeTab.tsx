@@ -155,10 +155,10 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
       )}
 
       {/* Action Buttons / Next Hand Button */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: isSmallScreen ? '6px' : '12px', width: '100%', maxWidth: '320px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: isSmallScreen ? '10px' : '12px', width: '100%', maxWidth: '320px', margin: '0 auto' }}>
         {practiceState.phase === 'awaitingAction' ? (
           <>
-            <div style={{ display: 'flex', gap: isSmallScreen ? '6px' : '12px' }}>
+            <div style={{ display: 'flex', gap: isSmallScreen ? '10px' : '12px' }}>
               <button
                 onClick={() => onSelectAction('H')}
                 className="action-btn action-btn-hit"
@@ -172,7 +172,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
                 Stand (S)
               </button>
             </div>
-            <div style={{ display: 'flex', gap: isSmallScreen ? '6px' : '12px' }}>
+            <div style={{ display: 'flex', gap: isSmallScreen ? '10px' : '12px' }}>
               <button
                 onClick={() => onSelectAction('D')}
                 className="action-btn action-btn-double"
