@@ -2,6 +2,8 @@
 
 A responsive, high-fidelity React single-page web application for memorizing and practicing basic blackjack strategy, ported from the iOS app.
 
+**Live Demo**: [https://kristopherjohnson.github.io/blackjack_strategy_react/](https://kristopherjohnson.github.io/blackjack_strategy_react/)
+
 ## Features
 
 - **Practice Mode**: Random or weighted hands with immediate feedback on correct/incorrect plays. Weighted generation biases toward hands you get wrong most often.
