@@ -22,6 +22,18 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
   onSelectAction,
   onNextHand,
 }) => {
+  const [viewportHeight, setViewportHeight] = React.useState(window.innerHeight);
+
+  React.useEffect(() => {
+    const handleResize = () => setViewportHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cardHeight = Math.max(70, Math.min(viewportHeight * 0.15, 130));
+  const isSmallScreen = viewportHeight < 720;
+  const isExtraSmallScreen = viewportHeight < 600;
+
   const canSplit = isHandPair(playerHand);
 
   // Description of player hand (e.g. "Soft 17", "Pair (16)", "Hard 12")
@@ -57,7 +69,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
   return (
     <div className="felt-table">
       {/* Top Header Mode Selector */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: isExtraSmallScreen ? '4px' : (isSmallScreen ? '8px' : '16px') }}>
         <div className="segmented-picker" style={{ width: '180px' }}>
           <button
             className={`segmented-picker-item ${practiceMode === 'Random' ? 'segmented-picker-item-active' : ''}`}
@@ -75,24 +87,24 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
       </div>
 
       {/* Dealer Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isExtraSmallScreen ? '2px' : (isSmallScreen ? '4px' : '8px') }}>
+        <div style={{ fontSize: isExtraSmallScreen ? '0.75rem' : (isSmallScreen ? '0.8rem' : '0.9rem'), fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Dealer Shows
         </div>
-        <CardComponent card={dealerCard} height={130} />
+        <CardComponent card={dealerCard} height={cardHeight} />
       </div>
 
       {/* Player Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', margin: '20px 0' }}>
-        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isExtraSmallScreen ? '2px' : (isSmallScreen ? '4px' : '8px'), margin: isExtraSmallScreen ? '4px 0' : (isSmallScreen ? '8px 0' : '20px 0') }}>
+        <div style={{ fontSize: isExtraSmallScreen ? '0.75rem' : (isSmallScreen ? '0.8rem' : '0.9rem'), fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Your Hand
         </div>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: isExtraSmallScreen ? '6px' : (isSmallScreen ? '8px' : '12px'), justifyContent: 'center' }}>
           {playerHand.cards.map((card, idx) => (
-            <CardComponent key={`${card.id}-${idx}`} card={card} height={130} />
+            <CardComponent key={`${card.id}-${idx}`} card={card} height={cardHeight} />
           ))}
         </div>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'rgba(255, 255, 255, 0.8)', marginTop: '4px' }}>
+        <div style={{ fontSize: isExtraSmallScreen ? '0.85rem' : (isSmallScreen ? '0.9rem' : '1rem'), fontWeight: 700, color: 'rgba(255, 255, 255, 0.8)', marginTop: isExtraSmallScreen ? '2px' : '4px' }}>
           {getHandDescription()}
         </div>
       </div>
@@ -104,8 +116,8 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
           style={{
             maxWidth: '320px',
             width: '100%',
-            margin: '0 auto 12px auto',
-            padding: '16px',
+            margin: isExtraSmallScreen ? '0 auto 4px auto' : (isSmallScreen ? '0 auto 8px auto' : '0 auto 12px auto'),
+            padding: isExtraSmallScreen ? '6px 8px' : (isSmallScreen ? '10px 12px' : '16px'),
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -115,25 +127,25 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
             background: 'rgba(15, 23, 42, 0.85)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '1.8rem', color: practiceState.correct ? 'var(--action-hit)' : 'var(--action-stand)', lineHeight: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: isExtraSmallScreen ? '2px' : (isSmallScreen ? '4px' : '8px') }}>
+            <span style={{ fontSize: isExtraSmallScreen ? '1.2rem' : (isSmallScreen ? '1.4rem' : '1.8rem'), color: practiceState.correct ? 'var(--action-hit)' : 'var(--action-stand)', lineHeight: 1 }}>
               {practiceState.correct ? '✓' : '✗'}
             </span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: practiceState.correct ? 'var(--action-hit)' : 'var(--action-stand)' }}>
+            <span style={{ fontSize: isExtraSmallScreen ? '0.9rem' : (isSmallScreen ? '1rem' : '1.2rem'), fontWeight: 800, color: practiceState.correct ? 'var(--action-hit)' : 'var(--action-stand)' }}>
               {practiceState.correct ? 'Correct!' : 'Wrong'}
             </span>
           </div>
 
           {!practiceState.correct && practiceState.correctAction && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>
+              <div style={{ fontSize: isExtraSmallScreen ? '0.8rem' : (isSmallScreen ? '0.85rem' : '0.95rem'), fontWeight: 600 }}>
                 Correct play:{' '}
                 <span style={{ color: getActionColor(practiceState.correctAction) }}>
                   {getActionName(practiceState.correctAction)}
                 </span>
               </div>
               {practiceState.advice && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.4, margin: '4px 0 0 0' }}>
+                <p style={{ fontSize: isExtraSmallScreen ? '0.7rem' : (isSmallScreen ? '0.75rem' : '0.85rem'), color: 'var(--text-secondary)', lineHeight: 1.4, margin: '4px 0 0 0' }}>
                   {practiceState.advice}
                 </p>
               )}
@@ -143,95 +155,34 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
       )}
 
       {/* Action Buttons / Next Hand Button */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '320px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: isSmallScreen ? '6px' : '12px', width: '100%', maxWidth: '320px', margin: '0 auto' }}>
         {practiceState.phase === 'awaitingAction' ? (
           <>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: isSmallScreen ? '6px' : '12px' }}>
               <button
                 onClick={() => onSelectAction('H')}
-                className="action-btn"
-                style={{
-                  flex: 1,
-                  height: '50px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  backgroundColor: 'var(--action-hit)',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                  transition: 'transform 0.1s ease',
-                }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-                onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                className="action-btn action-btn-hit"
               >
                 Hit (H)
               </button>
               <button
                 onClick={() => onSelectAction('S')}
-                className="action-btn"
-                style={{
-                  flex: 1,
-                  height: '50px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  backgroundColor: 'var(--action-stand)',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                  transition: 'transform 0.1s ease',
-                }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-                onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                className="action-btn action-btn-stand"
               >
                 Stand (S)
               </button>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: isSmallScreen ? '6px' : '12px' }}>
               <button
                 onClick={() => onSelectAction('D')}
-                className="action-btn"
-                style={{
-                  flex: 1,
-                  height: '50px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  backgroundColor: 'var(--action-double)',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                  transition: 'transform 0.1s ease',
-                }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-                onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                className="action-btn action-btn-double"
               >
                 Double (D)
               </button>
               <button
                 onClick={() => onSelectAction('P')}
                 disabled={!canSplit}
-                className="action-btn"
-                style={{
-                  flex: 1,
-                  height: '50px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  backgroundColor: 'var(--action-split)',
-                  opacity: canSplit ? 1 : 0.4,
-                  cursor: canSplit ? 'pointer' : 'not-allowed',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                  transition: 'transform 0.1s ease, opacity 0.2s ease',
-                }}
-                onMouseDown={(e) => canSplit && (e.currentTarget.style.transform = 'scale(0.95)')}
-                onMouseUp={(e) => canSplit && (e.currentTarget.style.transform = 'scale(1)')}
+                className="action-btn action-btn-split"
               >
                 Split (P)
               </button>
@@ -240,21 +191,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
         ) : (
           <button
             onClick={onNextHand}
-            style={{
-              width: '100%',
-              height: '50px',
-              borderRadius: '10px',
-              border: 'none',
-              color: 'white',
-              fontSize: '1.1rem',
-              fontWeight: 700,
-              backgroundColor: '#10b981', // Emerald 500
-              cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-              transition: 'transform 0.1s ease',
-            }}
-            onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-            onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            className="next-hand-btn"
           >
             Next Hand (Space/N)
           </button>
