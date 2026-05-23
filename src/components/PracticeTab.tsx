@@ -70,16 +70,20 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
     <div className="felt-table">
       {/* Top Header Mode Selector */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: isExtraSmallScreen ? '4px' : (isSmallScreen ? '8px' : '16px') }}>
-        <div className="segmented-picker" style={{ width: '180px' }}>
+        <div className="segmented-picker" style={{ width: '180px' }} role="tablist" aria-label="Practice Mode Selection">
           <button
             className={`segmented-picker-item ${practiceMode === 'Random' ? 'segmented-picker-item-active' : ''}`}
             onClick={() => setPracticeMode('Random')}
+            role="tab"
+            aria-selected={practiceMode === 'Random'}
           >
             Random
           </button>
           <button
             className={`segmented-picker-item ${practiceMode === 'Weighted' ? 'segmented-picker-item-active' : ''}`}
             onClick={() => setPracticeMode('Weighted')}
+            role="tab"
+            aria-selected={practiceMode === 'Weighted'}
           >
             Weighted
           </button>
@@ -162,12 +166,14 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
               <button
                 onClick={() => onSelectAction('H')}
                 className="action-btn action-btn-hit"
+                aria-keyshortcuts="h"
               >
                 Hit (H)
               </button>
               <button
                 onClick={() => onSelectAction('S')}
                 className="action-btn action-btn-stand"
+                aria-keyshortcuts="s"
               >
                 Stand (S)
               </button>
@@ -176,6 +182,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
               <button
                 onClick={() => onSelectAction('D')}
                 className="action-btn action-btn-double"
+                aria-keyshortcuts="d"
               >
                 Double (D)
               </button>
@@ -183,6 +190,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
                 onClick={() => onSelectAction('P')}
                 disabled={!canSplit}
                 className="action-btn action-btn-split"
+                aria-keyshortcuts="p"
               >
                 Split (P)
               </button>
@@ -192,6 +200,7 @@ export const PracticeTab: React.FC<PracticeTabProps> = ({
           <button
             onClick={onNextHand}
             className="next-hand-btn"
+            aria-keyshortcuts="Space n"
           >
             Next Hand (Space/N)
           </button>

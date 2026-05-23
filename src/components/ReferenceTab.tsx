@@ -31,12 +31,14 @@ export const ReferenceTab: React.FC = () => {
       </h2>
 
       {/* Segmented Picker */}
-      <div className="segmented-picker" style={{ marginBottom: '16px', maxWidth: '400px', width: '100%', alignSelf: 'center' }}>
+      <div className="segmented-picker" style={{ marginBottom: '16px', maxWidth: '400px', width: '100%', alignSelf: 'center' }} role="tablist" aria-label="Reference Hand Category">
         {(['Hard', 'Soft', 'Pairs'] as HandCategory[]).map(category => (
           <button
             key={category}
             className={`segmented-picker-item ${selectedSection === category ? 'segmented-picker-item-active' : ''}`}
             onClick={() => setSelectedSection(category)}
+            role="tab"
+            aria-selected={selectedSection === category}
           >
             {category}
           </button>

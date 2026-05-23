@@ -167,25 +167,33 @@ function App() {
       case 'practice':
         if (!playerHand.cards || playerHand.cards.length === 0) return null;
         return (
-          <PracticeTab
-            playerHand={playerHand}
-            dealerCard={dealerCard}
-            practiceState={practiceState}
-            practiceMode={practiceMode}
-            setPracticeMode={handlePracticeModeChange}
-            onSelectAction={handleSelectAction}
-            onNextHand={handleNextHand}
-          />
+          <div role="tabpanel" id="practice-tab-panel" aria-labelledby="tab-practice" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <PracticeTab
+              playerHand={playerHand}
+              dealerCard={dealerCard}
+              practiceState={practiceState}
+              practiceMode={practiceMode}
+              setPracticeMode={handlePracticeModeChange}
+              onSelectAction={handleSelectAction}
+              onNextHand={handleNextHand}
+            />
+          </div>
         );
       case 'reference':
-        return <ReferenceTab />;
+        return (
+          <div role="tabpanel" id="reference-tab-panel" aria-labelledby="tab-reference" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <ReferenceTab />
+          </div>
+        );
       case 'statistics':
         return (
-          <StatisticsTab
-            results={results}
-            onResetStats={handleResetStats}
-            onNavigateToReview={() => setActiveTab('review')}
-          />
+          <div role="tabpanel" id="statistics-tab-panel" aria-labelledby="tab-statistics" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <StatisticsTab
+              results={results}
+              onResetStats={handleResetStats}
+              onNavigateToReview={() => setActiveTab('review')}
+            />
+          </div>
         );
       case 'review':
         return <HandReviewTab results={results} onBack={() => setActiveTab('statistics')} />;
@@ -199,10 +207,14 @@ function App() {
 
       {/* Floating Bottom Tab Bar */}
       {activeTab !== 'review' && (
-        <nav className="bottom-nav">
+        <nav className="bottom-nav" role="tablist" aria-label="Main Navigation">
           <button
             onClick={() => setActiveTab('practice')}
             className={`nav-item ${activeTab === 'practice' ? 'nav-item-active' : ''}`}
+            role="tab"
+            aria-selected={activeTab === 'practice'}
+            aria-controls="practice-tab-panel"
+            id="tab-practice"
           >
             <Spade className="nav-icon" size={24} />
             <span>Practice</span>
@@ -211,6 +223,10 @@ function App() {
           <button
             onClick={() => setActiveTab('reference')}
             className={`nav-item ${activeTab === 'reference' ? 'nav-item-active' : ''}`}
+            role="tab"
+            aria-selected={activeTab === 'reference'}
+            aria-controls="reference-tab-panel"
+            id="tab-reference"
           >
             <BookOpen className="nav-icon" size={24} />
             <span>Reference</span>
@@ -219,6 +235,10 @@ function App() {
           <button
             onClick={() => setActiveTab('statistics')}
             className={`nav-item ${activeTab === 'statistics' ? 'nav-item-active' : ''}`}
+            role="tab"
+            aria-selected={activeTab === 'statistics'}
+            aria-controls="statistics-tab-panel"
+            id="tab-statistics"
           >
             <BarChart3 className="nav-icon" size={24} />
             <span>Statistics</span>

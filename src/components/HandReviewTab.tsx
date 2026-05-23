@@ -84,12 +84,14 @@ export const HandReviewTab: React.FC<HandReviewTabProps> = ({ results, onBack })
       </div>
 
       {/* Segmented Filter */}
-      <div className="segmented-picker" style={{ marginBottom: '20px', width: '100%' }}>
+      <div className="segmented-picker" style={{ marginBottom: '20px', width: '100%' }} role="tablist" aria-label="Review Filters">
         {(['Incorrect', 'All'] as FilterType[]).map(f => (
           <button
             key={f}
             className={`segmented-picker-item ${filter === f ? 'segmented-picker-item-active' : ''}`}
             onClick={() => setFilter(f)}
+            role="tab"
+            aria-selected={filter === f}
           >
             {f}
           </button>
