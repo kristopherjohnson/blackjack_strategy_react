@@ -1,6 +1,6 @@
 # Blackjack Strategy Web App
 
-A responsive, high-fidelity React single-page web application for memorizing and practicing basic blackjack strategy, ported from the iOS app.
+A responsive, high-fidelity React single-page web application for memorizing and practicing basic blackjack strategy, ported from [the iOS app](https://github.com/kristopherjohnson/blackjack_strategy_ios).
 
 **Live Demo**: [https://kristopherjohnson.github.io/blackjack_strategy_react/](https://kristopherjohnson.github.io/blackjack_strategy_react/)
 
