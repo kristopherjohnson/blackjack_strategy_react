@@ -45,3 +45,9 @@ coverage/
 *.sln
 *.sw?
 ._*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.local-browsers/
