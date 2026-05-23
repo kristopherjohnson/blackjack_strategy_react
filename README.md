@@ -12,6 +12,7 @@ A responsive, high-fidelity React single-page web application for memorizing and
 - **Hand Review**: Review recent practice plays (incorrect only or all plays) to see what you played vs. the correct basic strategy action and review strategy advice.
 - **340 Scenarios**: Complete basic strategy coverage with helpful advice for each situation.
 - **Action Colors**: Hit (green), Stand (red), Double (orange), Split (blue) across Practice, Reference, and Hand Review screens.
+- **Accessibility (a11y)**: Full WCAG compliance featuring semantic HTML5 markup, keyboard-focusable buttons, screen-reader card descriptors (e.g. "Ace of Spades"), ARIA tablist/tab roles, and screen-reader shortcut announcements.
 
 ## Keyboard & Desktop UX Enhancements
 
@@ -57,9 +58,15 @@ npm run preview
 ```
 
 ### Running Tests
+
 Run the Vitest unit tests:
 ```bash
 npm run test
+```
+
+Run the Playwright E2E browser integration tests:
+```bash
+npm run test:e2e
 ```
 
 ## License
