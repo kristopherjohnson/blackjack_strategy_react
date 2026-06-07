@@ -58,3 +58,18 @@ export function getRandomCard(): Card {
   const suit = SUITS[Math.floor(Math.random() * SUITS.length)];
   return createCard(rank, suit);
 }
+
+export function getRandomCardForDealerKey(dealerKey: string): Card {
+  let rank: Rank;
+  if (dealerKey === 'A') {
+    rank = 14;
+  } else if (dealerKey === '10') {
+    const tenRanks: Rank[] = [10, 11, 12, 13];
+    rank = tenRanks[Math.floor(Math.random() * tenRanks.length)];
+  } else {
+    rank = parseInt(dealerKey, 10) as Rank;
+  }
+  const suit = SUITS[Math.floor(Math.random() * SUITS.length)];
+  return createCard(rank, suit);
+}
+

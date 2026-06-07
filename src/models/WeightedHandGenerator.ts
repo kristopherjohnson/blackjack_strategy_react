@@ -1,5 +1,5 @@
 import type { Card, Hand, HandCategory, Rank } from './types';
-import { createCard, getRandomCard, RANKS, SUITS } from './Card';
+import { createCard, getRandomCard, getRandomCardForDealerKey, RANKS, SUITS } from './Card';
 import { getHandStrategyKey, isHandBlackjack, isHandPair, isHandSoft, getRandomTwoCardHand } from './Hand';
 
 export interface AccuracyData {
@@ -10,6 +10,7 @@ export interface AccuracyData {
 export interface StatsProvider {
   overallAccuracy: AccuracyData | null;
   handAccuracy(category: HandCategory, key: string): AccuracyData | null;
+  combinationAccuracy(category: HandCategory, handKey: string, dealerKey: string): AccuracyData | null;
 }
 
 export interface RankCombo {
@@ -21,6 +22,15 @@ export interface ComboEntry {
   category: HandCategory;
   key: string;
   combos: RankCombo[];
+}
+
+export const DEALER_KEYS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'A'];
+
+export interface ComboWeightEntry {
+  category: HandCategory;
+  handKey: string;
+  dealerKey: string;
+  weight: number;
 }
 
 export class WeightedHandGenerator {
@@ -98,13 +108,13 @@ export class WeightedHandGenerator {
 
     // Find the combo entry for this key
     const comboEntry = this.comboTable.find(
-      c => c.category === selectedEntry.category && c.key === selectedEntry.key
+      c => c.category === selectedEntry.category && c.key === selectedEntry.handKey
     );
 
     if (!comboEntry || comboEntry.combos.length === 0) {
       return {
         hand: getRandomTwoCardHand(),
-        dealerCard: getRandomCard(),
+        dealerCard: getRandomCardForDealerKey(selectedEntry.dealerKey),
       };
     }
 
@@ -120,27 +130,38 @@ export class WeightedHandGenerator {
 
     return {
       hand: { cards },
-      dealerCard: getRandomCard(),
+      dealerCard: getRandomCardForDealerKey(selectedEntry.dealerKey),
     };
   }
 
-  computeWeights(stats: StatsProvider): Array<{ category: HandCategory; key: string; weight: number }> {
-    return this.comboTable.map(entry => {
-      const accuracy = stats.handAccuracy(entry.category, entry.key);
-      let weight = 1.0;
+  computeWeights(stats: StatsProvider): ComboWeightEntry[] {
+    const list: ComboWeightEntry[] = [];
+    for (const entry of this.comboTable) {
+      for (const dealerKey of DEALER_KEYS) {
+        const accuracy = stats.combinationAccuracy(entry.category, entry.key, dealerKey);
+        let weight = 1.0;
 
-      if (accuracy && accuracy.plays >= WeightedHandGenerator.perHandPlayThreshold) {
-        const rate = accuracy.correct / accuracy.plays;
-        // Inverse accuracy weighting: lower accuracy -> higher weight
-        weight = Math.max(0.2, 1.0 - rate) + 0.1;
+        if (accuracy && accuracy.plays > 0) {
+          const incorrect = accuracy.plays - accuracy.correct;
+          if (incorrect > 0) {
+            const rate = accuracy.correct / accuracy.plays;
+            // Higher weight for lower accuracy, and direct boost based on number of incorrect attempts
+            weight = 1.0 + (1.0 - rate) * 2.0 + incorrect * 1.5;
+          } else {
+            // Lower weight if they always got it correct
+            weight = 0.1;
+          }
+        }
+
+        list.push({
+          category: entry.category,
+          handKey: entry.key,
+          dealerKey,
+          weight,
+        });
       }
-
-      return {
-        category: entry.category,
-        key: entry.key,
-        weight,
-      };
-    });
+    }
+    return list;
   }
 }
 

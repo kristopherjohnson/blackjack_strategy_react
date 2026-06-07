@@ -65,6 +65,21 @@ export function getHandAccuracy(results: PlayResult[], category: HandCategory, k
   return { plays: filtered.length, correct };
 }
 
+export function getCombinationAccuracy(
+  results: PlayResult[],
+  category: HandCategory,
+  handKey: string,
+  dealerKey: string
+): AccuracyData | null {
+  const filtered = results.filter(
+    r => r.handCategory === category && r.handKey === handKey && r.dealerKey === dealerKey
+  );
+  if (filtered.length === 0) return null;
+  const correct = filtered.filter(r => r.isCorrect).length;
+  return { plays: filtered.length, correct };
+}
+
+
 function pairSortValue(key: string): number {
   switch (key) {
     case 'A': return 14;
@@ -126,5 +141,9 @@ export class ResultsStatsProvider implements StatsProvider {
 
   handAccuracy(category: HandCategory, key: string): AccuracyData | null {
     return getHandAccuracy(this.results, category, key);
+  }
+
+  combinationAccuracy(category: HandCategory, handKey: string, dealerKey: string): AccuracyData | null {
+    return getCombinationAccuracy(this.results, category, handKey, dealerKey);
   }
 }

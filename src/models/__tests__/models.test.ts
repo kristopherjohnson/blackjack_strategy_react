@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createCard, getRankBlackjackValue, getRankStrategyKey, getRankDisplay } from '../Card';
+import { createCard, getRankBlackjackValue, getRankStrategyKey, getRankDisplay, getRandomCardForDealerKey } from '../Card';
 import {
   isHandPair,
   isHandSoft,
@@ -9,7 +9,7 @@ import {
   getHandStrategyKey,
 } from '../Hand';
 import { strategy } from '../StrategyData';
-import { recordPlayResult, getOverallAccuracy, getCategoryAccuracy, getHandAccuracy, getAllHandKeys } from '../StatisticsStore';
+import { recordPlayResult, getOverallAccuracy, getCategoryAccuracy, getHandAccuracy, getAllHandKeys, getCombinationAccuracy } from '../StatisticsStore';
 import { WeightedHandGenerator } from '../WeightedHandGenerator';
 import type { PlayResult } from '../types';
 
@@ -173,5 +173,113 @@ describe('Weighted Hand Generator', () => {
     const entry88 = generator.comboTable.find(c => c.category === 'Pairs' && c.key === '8,8');
     expect(entry88).toBeDefined();
     expect(entry88?.combos.length).toBeGreaterThan(0);
+  });
+
+  it('should compute combination weights based on incorrect history', () => {
+    const generator = new WeightedHandGenerator();
+    
+    // Mock a stats provider
+    const mockStats = {
+      overallAccuracy: { plays: 25, correct: 20 },
+      handAccuracy: () => null,
+      combinationAccuracy: (category: string, handKey: string, dealerKey: string) => {
+        // Assume user struggled with Hard 16 vs Dealer 10
+        if (category === 'Hard' && handKey === '16' && dealerKey === '10') {
+          return { plays: 3, correct: 1 }; // 2 incorrect
+        }
+        // Assume user is perfect with Hard 17 vs Dealer 6
+        if (category === 'Hard' && handKey === '17' && dealerKey === '6') {
+          return { plays: 4, correct: 4 }; // 0 incorrect
+        }
+        return null;
+      }
+    };
+
+    const weights = generator.computeWeights(mockStats);
+    
+    // Find weight for Hard 16 vs Dealer 10 (should be boosted)
+    const weight16v10 = weights.find(w => w.category === 'Hard' && w.handKey === '16' && w.dealerKey === '10');
+    expect(weight16v10).toBeDefined();
+    // 1.0 + (1.0 - 1/3) * 2.0 + 2 * 1.5 = 1.0 + 1.33 + 3.0 = 5.33
+    expect(weight16v10!.weight).toBeCloseTo(5.33);
+
+    // Find weight for Hard 17 vs Dealer 6 (should be low/reduced)
+    const weight17v6 = weights.find(w => w.category === 'Hard' && w.handKey === '17' && w.dealerKey === '6');
+    expect(weight17v6).toBeDefined();
+    expect(weight17v6!.weight).toBe(0.1);
+
+    // Find weight for an unplayed hand combination (should be 1.0)
+    const weightUnplayed = weights.find(w => w.category === 'Hard' && w.handKey === '12' && w.dealerKey === '2');
+    expect(weightUnplayed).toBeDefined();
+    expect(weightUnplayed!.weight).toBe(1.0);
+  });
+
+  it('should generate hand and dealer card matching weighted strategy', () => {
+    const generator = new WeightedHandGenerator();
+    
+    const mockStats = {
+      overallAccuracy: { plays: 50, correct: 10 },
+      handAccuracy: () => null,
+      combinationAccuracy: (category: string, handKey: string, dealerKey: string) => {
+        // High incorrect count for Soft A,7 vs Dealer 9
+        if (category === 'Soft' && handKey === 'A,7' && dealerKey === '9') {
+          return { plays: 20, correct: 0 };
+        }
+        // Always correct on everything else to ensure Soft A,7 vs 9 gets selected
+        return { plays: 10, correct: 10 };
+      }
+    };
+
+    const result = generator.generateHand(mockStats);
+    expect(result.hand).toBeDefined();
+    expect(result.dealerCard).toBeDefined();
+    expect(getHandStrategyKey(result.hand)).toBe('A,7');
+    expect(result.dealerCard.rank).toBe(9); // dealerKey '9' maps to rank 9
+  });
+});
+
+describe('Dealer Card Key Generator', () => {
+  it('should generate correct ranks for all dealer card keys', () => {
+    const cardA = getRandomCardForDealerKey('A');
+    expect(cardA.rank).toBe(14);
+
+    const card10 = getRandomCardForDealerKey('10');
+    expect([10, 11, 12, 13]).toContain(card10.rank);
+
+    const card5 = getRandomCardForDealerKey('5');
+    expect(card5.rank).toBe(5);
+  });
+});
+
+describe('Statistics Store Combination Accuracy', () => {
+  it('should compute combination accuracy correctly', () => {
+    let list: PlayResult[] = [];
+    list = recordPlayResult(list, {
+      handCategory: 'Hard',
+      handKey: '16',
+      isCorrect: false,
+      dealerKey: '10',
+    });
+    list = recordPlayResult(list, {
+      handCategory: 'Hard',
+      handKey: '16',
+      isCorrect: true,
+      dealerKey: '10',
+    });
+    list = recordPlayResult(list, {
+      handCategory: 'Hard',
+      handKey: '16',
+      isCorrect: true,
+      dealerKey: '2',
+    });
+
+    const acc16v10 = getCombinationAccuracy(list, 'Hard', '16', '10');
+    expect(acc16v10).toEqual({ plays: 2, correct: 1 });
+
+    const acc16v2 = getCombinationAccuracy(list, 'Hard', '16', '2');
+    expect(acc16v2).toEqual({ plays: 1, correct: 1 });
+
+    const accUnplayed = getCombinationAccuracy(list, 'Hard', '16', '7');
+    expect(accUnplayed).toBeNull();
   });
 });
